@@ -1,0 +1,43 @@
+# Nginx Configuration for Paul's Roofing Staff Section
+# Add this to your nginx server configuration
+
+location /staff {
+    alias /path/to/your/website/staff;
+    
+    # Try to serve request as file, then as directory, then fallback to index.html
+    try_files $uri $uri/ /staff/index.html;
+    
+    # Handle SPA routing - all routes should serve index.html
+    location ~* /staff/(.*)$ {
+        try_files $uri $uri/ /staff/index.html;
+    }
+    
+    # Cache static assets
+    location ~* /staff/assets/.*\.(css|js|png|jpg|jpeg|gif|ico|svg)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        try_files $uri =404;
+    }
+    
+    # Security headers
+    add_header X-Frame-Options DENY always;
+    add_header X-Content-Type-Options nosniff always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    
+    # Enable gzip compression
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_proxied any;
+    gzip_comp_level 6;
+    gzip_types
+        text/plain
+        text/css
+        text/xml
+        text/javascript
+        application/json
+        application/javascript
+        application/xml+rss
+        application/atom+xml
+        image/svg+xml;
+}
